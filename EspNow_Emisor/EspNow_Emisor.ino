@@ -3,7 +3,7 @@
 #include "WiFi.h"
 
 //Direcion MAC del receptor - 24:6F:28:81:DE:84
-uint8_t broadcastAddress[] = {0x24, 0x6F, 0x28, 0x81, 0xDE, 0x84};
+uint8_t broadcastAddress[] = {0x0C, 0xB8, 0x15, 0xD7, 0x22, 0xB0};
 
 //Estructura del mensaje a enviar
 typedef struct struct_message {
@@ -51,6 +51,7 @@ void setup() {
 }
 
 void loop() {
+  delay(2000);
   //Asignamos los valores a las variables
   myData.id = 1;
   myData.x = random(0,50);
