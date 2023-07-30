@@ -9,5 +9,7 @@ void setup(){
 }
  
 void loop(){
-
+  delay(3000);
+  Serial.print("ESP8266 Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
 }

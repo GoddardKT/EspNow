@@ -1,44 +1,40 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-// REPLACE WITH THE MAC Address of your receiver 
+//Mac receptor
 uint8_t broadcastAddress[] = {0x0C, 0xB8, 0x15, 0xD7, 0x22, 0xB0};
 
-// Define variables to store incoming readings
+//Variables internad para enviar y recibir
 int T_enviar=2;
 int R_recibir=0;
 
-// Updates DHT readings every 10 seconds
-const long interval = 2000; 
-unsigned long previousMillis = 0;    // will store last time DHT was updated 
-
-// Variable to store if sending data was successful
+//Variable para almacenar si el envío de datos fue exitoso
 String success;
 
-//Structure example to send data
-//Must match the receiver structure
+//Estructura de valoriables a usar en el protocolo
 typedef struct struct_message {
   int X;
 } struct_message;
-// Create a struct_message called DHTReadings to hold sensor readings
+
+//Variable sde tipo struct_message para enviar por protocolo ESPNow
 struct_message Enviar;
 
-// Create a struct_message to hold incoming sensor readings
+//Variable sde tipo struct_message para recibir por protocolo ESPNow
 struct_message Recibir;
 
 
-// Callback when data is sent
+//Funcion para enviar por protocolo ESPNow
 void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
-  Serial.print("Last Packet Send Status: ");
+  Serial.print("Estado de envio de ultimo paquete: ");
   if (sendStatus == 0){
-    Serial.println("Delivery success");
+    Serial.println("Paquete enviado");
   }
   else{
-    Serial.println("Delivery fail");
+    Serial.println("Paquete no enviado");
   }
 }
 
-// Callback when data is received
+//Funcion para recibir
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&Recibir, incomingData, sizeof(Recibir));
   Serial.print("Bytes received: ");
@@ -47,14 +43,11 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 }
 
 void setup() {
-  // Init Serial Monitor
   Serial.begin(115200);
-
-  // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
 
-  // Init ESP-NOW
+  // Inicia ESP-NOW
   if (esp_now_init() != 0) {
     Serial.println("Error initializing ESP-NOW");
     return;
@@ -75,11 +68,6 @@ void setup() {
 }
  
 void loop() {
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time you updated the DHT values
-    previousMillis = currentMillis;
-
     Enviar.X=T_enviar;
 
     // Send message via ESP-NOW
@@ -88,5 +76,5 @@ void loop() {
     // Print incoming readings
     Serial.println(R_recibir);
     Serial.println(T_enviar);
-  }
+    delay(2000);
 }

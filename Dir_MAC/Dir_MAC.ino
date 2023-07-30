@@ -9,4 +9,7 @@ void setup() {
 }
 
 void loop() {
+  delay(3000);
+  Serial.print("La direccion MAC de la placa es: ");
+  Serial.println(WiFi.macAddress());
 }

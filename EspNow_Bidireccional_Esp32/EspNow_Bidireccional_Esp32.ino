@@ -2,10 +2,11 @@
 #include <WiFi.h>
 
 // MAC del Receptor
-uint8_t broadcastAddress[] = {0x78, 0xE3, 0x6D, 0x18, 0xB7, 0xD0};
+uint8_t broadcastAddress1[] = {0xFC, 0xF5, 0xC4, 0x98, 0x9B, 0x18};
+uint8_t broadcastAddress2[] = {0xFC, 0xF5, 0xC4, 0x98, 0xA4, 0xBD};
 
 // Define variables to store BME280 readings to be sent
-int T_enviar=2;
+int T_enviar=3;
 
 // Define variables to store incoming readings
 int R_recibir=0;
@@ -15,7 +16,8 @@ String success;
 
 //Estructura de datos
 typedef struct struct_message {
-  int X;
+  int D1;
+  int D2;
 } struct_message;
 
 // Create a struct_message para enviar
@@ -41,8 +43,8 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 // Callback when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&Recibir, incomingData, sizeof(Recibir));
-  Serial.print("Bytes received: ");
-  Serial.println(len);
+  //Serial.print("Bytes received: ");
+  //Serial.println(len);
   R_recibir=Recibir.X;
 }
  
@@ -64,7 +66,10 @@ void setup() {
   esp_now_register_send_cb(OnDataSent);
   
   // Register peer
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  memcpy(peerInfo.peer_addr, broadcastAddress1, 6);
+  peerInfo.channel = 0;  
+  peerInfo.encrypt = false;
+  memcpy(peerInfo.peer_addr, broadcastAddress2, 6);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
   
@@ -82,14 +87,24 @@ void loop() {
   Enviar.X=T_enviar;
 
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &Enviar, sizeof(Enviar));
-   
-  if (result == ESP_OK) {
+  esp_err_t result1 = esp_now_send(broadcastAddress1, (uint8_t *) &Enviar, sizeof(Enviar));
+  
+  
+  if (result1 == ESP_OK) {
     Serial.println("Sent with success");
   }
   else {
     Serial.println("Error sending the data");
   }
+
+  esp_err_t result2 = esp_now_send(broadcastAddress2, (uint8_t *) &Enviar, sizeof(Enviar)); 
+  if (result2 == ESP_OK) {
+    Serial.println("Sent with success");
+  }
+  else {
+    Serial.println("Error sending the data");
+  }
+  
   Serial.println(R_recibir);
   Serial.println(T_enviar);
   delay(2000);
